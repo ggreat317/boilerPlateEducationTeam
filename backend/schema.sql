@@ -1,0 +1,11 @@
+-- Paste this into Supabase dashboard -> SQL Editor -> Run
+
+create table if not exists example (
+  id bigint generated always as identity primary key,
+  title text not null,
+  created_at timestamptz not null default now()
+);
+
+-- Enable RLS so the public anon key can't touch this table.
+-- The backend uses the service role key, which bypasses RLS.
+alter table example enable row level security;
