@@ -7,5 +7,5 @@ create table if not exists example (
 );
 
 -- Enable RLS so the public anon key can't touch this table.
--- The backend uses the service role key, which bypasses RLS.
+-- The backend uses the secret key, which bypasses RLS.
 alter table example enable row level security;
