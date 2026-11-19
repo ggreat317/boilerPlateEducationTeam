@@ -1,0 +1,175 @@
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #e8eef7;
+  background: radial-gradient(ellipse at 40% 50%, #10243f 0%, #050b16 70%);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.topbar h1 { margin: 0; font-size: 18px; letter-spacing: 0.02em; }
+#me { font-size: 13px; opacity: 0.6; }
+
+.layout { flex: 1; display: flex; min-height: 0; }
+
+#globe { flex: 1; min-width: 0; overflow: hidden; }
+
+/* ---------- Chat panel ---------- */
+.chat {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 16, 30, 0.85);
+  transition: width 0.2s ease;
+}
+
+/* ---------- Retractable panel ---------- */
+/* app.js adds .chat-collapsed to the layout when you click the › button */
+.chat-expand { display: none; }
+
+.layout.chat-collapsed .chat { width: 44px; }
+.layout.chat-collapsed .chat > :not(.chat-expand) { display: none; }
+.layout.chat-collapsed .chat-expand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.chat-expand:hover { background: rgba(255, 255, 255, 0.05); }
+.chat-expand-label { writing-mode: vertical-rl; font-size: 13px; letter-spacing: 0.05em; opacity: 0.8; }
+.chat-unread {
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #3d8bfd;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+.chat-unread:empty { display: none; }
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.chat-header h2 { flex: 1; margin: 0; font-size: 16px; }
+#chat-online { font-size: 12px; color: #7ee0a1; }
+.icon-btn {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.icon-btn:hover { opacity: 1; }
+.icon-btn[hidden] { display: none; }
+
+.chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 16px;
+  list-style: none;
+  overflow-y: auto;
+}
+/* Show the list only when it has messages, otherwise show the placeholder text */
+.chat-messages:empty { display: none; }
+.chat-messages:not(:empty) + .chat-empty { display: none; }
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  color: rgba(232, 238, 247, 0.5);
+}
+
+.msg {
+  max-width: 90%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.msg.mine { align-self: flex-end; background: rgba(61, 139, 253, 0.25); }
+.msg .meta { margin-bottom: 2px; font-size: 11px; opacity: 0.6; }
+.msg p { margin: 0; line-height: 1.4; overflow-wrap: anywhere; }
+
+.chat-status { margin: 0; padding: 0 16px; font-size: 12px; color: #ff8a8a; }
+.chat-status:empty { display: none; }
+
+.chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.chat-form input {
+  flex: 1;
+  min-width: 0;   /* lets the text box shrink so the Send button always fits */
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font: inherit;
+}
+.chat-form input:disabled { opacity: 0.5; cursor: not-allowed; }
+.chat-form button {
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  background: #3d8bfd;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chat-form button:disabled {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+}
+
+/* Stack globe above chat on small screens */
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  #globe { flex: none; height: 55vh; }
+  .chat { width: 100%; flex: 1; min-height: 0; border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+  /* On phones the hidden chat becomes a bar along the bottom and the globe grows */
+  .layout.chat-collapsed #globe { flex: 1; height: auto; }
+  .layout.chat-collapsed .chat { width: 100%; flex: none; }
+  .layout.chat-collapsed .chat-expand { flex-direction: row; justify-content: center; padding: 12px 0; }
+  .chat-expand-label { writing-mode: horizontal-tb; }
+}

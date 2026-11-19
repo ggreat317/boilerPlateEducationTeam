@@ -1,0 +1,310 @@
+/* =====================================================
+   Fonts (stored in public/fonts so they work offline)
+   ===================================================== */
+@font-face { font-family: "Chakra Petch"; font-weight: 400; font-display: swap; src: url("fonts/chakra-petch-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Chakra Petch"; font-weight: 500; font-display: swap; src: url("fonts/chakra-petch-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Chakra Petch"; font-weight: 600; font-display: swap; src: url("fonts/chakra-petch-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 500; font-display: swap; src: url("fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2"); }
+
+/* =====================================================
+   Design tokens: change the look from here
+   ===================================================== */
+:root {
+  --void: #050913;          /* deep space behind the stars */
+  --hull: #12100d;          /* warm dark metal of the cockpit */
+  --screen: #0b0a08;        /* inset console screens (text box) */
+  --seam: rgba(255, 214, 150, 0.09);   /* panel edges */
+  --glow: #f2b544;          /* city-light gold: selection and actions */
+  --glow-dim: rgba(242, 181, 68, 0.38);
+  --signal: #5fd4c4;        /* teal light: live, online, your messages */
+  --alarm: #ef5a5a;         /* red light: errors and lost connection */
+  --text: #dfe7f5;          /* starlight white */
+  --muted: rgba(223, 231, 245, 0.55);
+
+  --font-ui: "Chakra Petch", system-ui, sans-serif;     /* labels, names, buttons */
+  --font-text: "IBM Plex Sans", system-ui, sans-serif;  /* messages and longer text */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+
+/* =====================================================
+   Top bar
+   ===================================================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 52px;
+  padding: 0 20px;
+  background: var(--hull);
+  border-bottom: 1px solid var(--seam);
+}
+.brand { margin: 0; font-family: var(--font-ui); font-size: 20px; font-weight: 600; letter-spacing: 0.01em; }
+.topbar-status { display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--muted); }
+
+.link { display: inline-flex; align-items: center; gap: 8px; }
+.led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--glow);
+}
+.link[data-state="connected"] .led { background: var(--signal); box-shadow: 0 0 8px var(--signal); }
+.link[data-state="lost"] .led { background: var(--alarm); box-shadow: 0 0 8px var(--alarm); }
+
+.layout { flex: 1; display: flex; min-height: 0; }
+
+/* =====================================================
+   The view: stars, globe, porthole frame
+   ===================================================== */
+.viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  container-type: size;   /* lets the porthole size itself to this box */
+}
+.stars, .globe, .warp { position: absolute; inset: 0; }
+.stars, .warp { width: 100%; height: 100%; }
+.warp { pointer-events: none; mix-blend-mode: screen; }
+.globe { overflow: hidden; }
+
+/* The round window. Everything outside it is the dark hull. */
+.porthole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(92cqw, 92cqh);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;   /* clicks go straight through to the globe */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 150, 0.22),  /* light catching the glass edge */
+    inset 0 0 70px 14px rgba(3, 6, 14, 0.6),    /* glass darkening toward the rim */
+    0 0 0 18px var(--hull),                     /* the metal frame */
+    0 0 0 19px rgba(255, 214, 150, 0.16),       /* outer edge of the frame */
+    0 0 0 200vmax rgba(10, 9, 8, 0.88);         /* the hull around the window */
+}
+/* Small gold tick marks around the frame, like an instrument bezel */
+.porthole::before {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--glow-dim) 0 0.35deg, transparent 0.35deg 5deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px) calc(100% - 4px), transparent calc(100% - 4px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 8px) calc(100% - 4px), transparent calc(100% - 4px));
+}
+
+/* Country name that follows the mouse (made by globe.gl, restyled here) */
+.globe .float-tooltip-kap {
+  padding: 4px 9px;
+  border: 1px solid var(--seam);
+  border-radius: 4px;
+  background: rgba(18, 16, 13, 0.92);
+  color: var(--text);
+  font: 500 13px var(--font-ui);
+}
+
+/* Country name and coordinates, bottom left of the view */
+.readout {
+  position: absolute;
+  left: 28px;
+  bottom: 24px;
+  max-width: calc(100% - 56px);
+  pointer-events: none;
+}
+.readout-name { margin: 0; font-family: var(--font-ui); font-size: 22px; font-weight: 500; line-height: 1.2; }
+.readout:not(.active) .readout-name { font-size: 15px; color: var(--muted); }
+.readout-coords { margin: 4px 0 0; font-family: var(--font-ui); font-size: 13px; color: var(--glow); font-variant-numeric: tabular-nums; }
+.readout-coords:empty { display: none; }
+
+/* =====================================================
+   Chat console
+   ===================================================== */
+.chat {
+  width: 372px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--hull);
+  border-left: 1px solid var(--seam);
+  transition: width 0.2s ease;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--seam);
+}
+.chat-header h2 { flex: 1; margin: 0; font-family: var(--font-ui); font-size: 17px; font-weight: 600; line-height: 1.25; }
+
+.online { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-ui); font-size: 13px; color: var(--signal); white-space: nowrap; }
+.online:not(:empty)::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 6px var(--signal); }
+
+.icon-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.icon-btn:hover { color: var(--text); }
+.icon-btn[hidden] { display: none; }
+
+.chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 14px 18px;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-color: rgba(255, 214, 150, 0.15) transparent;
+}
+/* Show the list only when it has messages, otherwise show the placeholder text */
+.chat-messages:empty { display: none; }
+.chat-messages:not(:empty) + .chat-empty { display: none; }
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 24px 40px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Each message is a log entry: gold edge for others, teal for you */
+.msg {
+  padding: 7px 12px 9px;
+  border-left: 2px solid var(--glow-dim);
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 0 6px 6px 0;
+}
+.msg.mine { border-left-color: var(--signal); background: rgba(95, 212, 196, 0.06); }
+.msg .meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 2px; font-family: var(--font-ui); font-size: 13px; }
+.msg .who { color: var(--glow); font-weight: 500; }
+.msg.mine .who { color: var(--signal); }
+.msg .when { color: var(--muted); font-variant-numeric: tabular-nums; }
+.msg p { margin: 0; overflow-wrap: anywhere; }
+
+.chat-status { margin: 0; padding: 0 18px; font-size: 13px; color: var(--alarm); }
+.chat-status:empty { display: none; }
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px 18px;
+  border-top: 1px solid var(--seam);
+}
+.chat-form input {
+  flex: 1;
+  min-width: 0;   /* lets the text box shrink so the Send button always fits */
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 214, 150, 0.14);
+  border-radius: 6px;
+  background: var(--screen);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  font: inherit;
+}
+.chat-form input::placeholder { color: var(--muted); }
+.chat-form input:focus { outline: none; border-color: var(--glow-dim); }
+.chat-form input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.chat-form button {
+  padding: 0 18px;
+  border: none;
+  border-radius: 6px;
+  background: var(--glow);
+  color: #1a1206;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chat-form button:hover { background: #ffc965; }
+.chat-form button:active { translate: 0 1px; }
+.chat-form button:disabled {
+  background: rgba(255, 214, 150, 0.08);
+  color: var(--muted);
+  cursor: not-allowed;
+  translate: none;
+}
+
+/* =====================================================
+   Retractable panel
+   app.js adds .chat-collapsed to the layout when you click ›
+   ===================================================== */
+.chat-expand { display: none; }
+
+.layout.chat-collapsed .chat { width: 44px; }
+.layout.chat-collapsed .chat > :not(.chat-expand) { display: none; }
+.layout.chat-collapsed .chat-expand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 18px 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: var(--font-ui);
+  cursor: pointer;
+}
+.chat-expand:hover { background: rgba(255, 214, 150, 0.04); }
+.chat-expand-label { writing-mode: vertical-rl; font-size: 14px; font-weight: 500; letter-spacing: 0.04em; }
+.chat-unread {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--glow);
+  color: #1a1206;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.chat-unread:empty { display: none; }
+
+/* =====================================================
+   Phones: globe on top, chat underneath
+   ===================================================== */
+@media (max-width: 800px) {
+  .topbar { padding: 0 14px; }
+  .me { display: none; }
+  .layout { flex-direction: column; }
+  .viewport { flex: none; height: 56vh; }
+  .readout { left: 16px; bottom: 14px; }
+  .readout-name { font-size: 18px; }
+  .chat { width: 100%; flex: 1; min-height: 0; border-left: none; border-top: 1px solid var(--seam); }
+
+  .layout.chat-collapsed .viewport { flex: 1; height: auto; }
+  .layout.chat-collapsed .chat { width: 100%; flex: none; }
+  .layout.chat-collapsed .chat-expand { flex-direction: row; justify-content: center; padding: 13px 0; }
+  .chat-expand-label { writing-mode: horizontal-tb; }
+}

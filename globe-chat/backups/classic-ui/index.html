@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global News</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Global News</h1>
+    <span id="me"></span>
+  </header>
+
+  <main class="layout" id="layout">
+    <!-- The globe gets drawn inside this element by app.js -->
+    <section id="globe" aria-label="Interactive globe"></section>
+
+    <!-- Chat panel. It starts disabled until a country is selected. -->
+    <aside class="chat" id="chat">
+      <!-- Slim tab shown only while the panel is hidden. Click it to reopen. -->
+      <button id="chat-expand" class="chat-expand" type="button" aria-controls="chat" aria-label="Show chat">
+        <span id="chat-expand-label" class="chat-expand-label">Chat</span>
+        <span id="chat-unread" class="chat-unread"></span>
+      </button>
+
+      <div class="chat-header">
+        <h2 id="chat-title">Country chat</h2>
+        <span id="chat-online"></span>
+        <button id="chat-close" class="icon-btn" type="button" aria-label="Deselect country" title="Deselect country" hidden>&times;</button>
+        <button id="chat-collapse" class="icon-btn" type="button" aria-controls="chat" aria-label="Hide chat" title="Hide chat">&rsaquo;</button>
+      </div>
+
+      <ol id="chat-messages" class="chat-messages"></ol>
+      <p id="chat-empty" class="chat-empty">Select a country to use chat</p>
+
+      <p id="chat-status" class="chat-status" role="status"></p>
+      <form id="chat-form" class="chat-form" autocomplete="off">
+        <input id="chat-input" maxlength="500" placeholder="Select a country to use chat" disabled />
+        <button id="chat-send" type="submit" disabled>Send</button>
+      </form>
+    </aside>
+  </main>
+
+  <!-- socket.io.js is served automatically by the Socket.IO server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- globe.gl is served from node_modules by server.js -->
+  <script src="/vendor/globe.gl.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
